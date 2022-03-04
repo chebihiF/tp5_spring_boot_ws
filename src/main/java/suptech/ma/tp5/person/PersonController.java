@@ -1,26 +1,38 @@
 package suptech.ma.tp5.person;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import suptech.ma.tp5.util.Error;
+import suptech.ma.tp5.util.IError;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api/v1")
+@RequestMapping(path = "/api/persons")
 public class PersonController {
 
-    @GetMapping(path = "/people")
-    public List<Person> people(){
-        return List.of(
-                new Person(
-                        1L,
-                        "chebihi",
-                        "f.chebihi@gmail.com",
-                        LocalDate.of(1987,3,14),
-                        34
-                )
-        );
+    private final IPersonService service;
+
+    public PersonController(IPersonService service) {
+        this.service = service;
+    }
+
+    @PostMapping
+    public IError addPerson(@RequestBody Person person) {
+        try {
+            return service.addPerson(person);
+        }catch (Exception e) {
+            return new Error("Data Error",e.getMessage());
+        }
+    }
+
+    @GetMapping
+    public List<Person> getPersons() throws RuntimeException{
+        return service.getPersons();
+    }
+
+    @GetMapping("/{id}")
+    public Person getPersonById(@PathVariable("id") Long id) throws RuntimeException{
+        return service.getPersonById(id);
     }
 }
